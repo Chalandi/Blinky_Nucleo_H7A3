@@ -1,0 +1,35 @@
+/*********************************************************************
+*                 (c) SEGGER Microcontroller GmbH                    *
+*                      The Embedded Experts                          *
+*                         www.segger.com                             *
+**********************************************************************
+
+File          : STM32H7A3ZIT6Q.jdebug
+Created       : 23 Nov 2022 00:31
+Ozone Version : V3.28a
+*/
+
+/*********************************************************************
+*
+*       OnProjectLoad
+*
+* Function description
+*   Project load routine. Required.
+*
+**********************************************************************
+*/
+void OnProjectLoad (void) {
+  //
+  // Dialog-generated settings
+  //
+  Project.SetDevice ("STM32H7A3ZI");
+  Project.SetTargetIF ("SWD");
+  Project.SetTIFSpeed ("4 MHz");
+  Project.AddSvdFile ("$(InstallDir)/Config/CPU/Cortex-M7F.svd");
+  Project.AddSvdFile ("$(ProjectDir)/STM32H7x3.svd");
+  File.Open("$(ProjectDir)/Output/Blinky_Nucleo_H7A3.elf");  
+  //
+  // User settings
+  //
+
+}
