@@ -1,4 +1,4 @@
-name: Blinky_Nucleo_H7A3
+﻿name: Blinky_Nucleo_H7A3
 on:
   push:
     branches:
@@ -18,7 +18,5 @@ jobs:
         run: sudo apt install gcc-arm-none-eabi
       - name: target-gcc-arm-none-eabi
         run: |
-          pwd
-          ls -la
           bash Rebuild.sh
           ls -la ./Output/Blinky_Nucleo_H7A3.hex
