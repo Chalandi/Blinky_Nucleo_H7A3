@@ -67,7 +67,9 @@ else
 endif
 
 
-SRC_FILES :=  $(SRC_DIR)/mcal/Clock          \
+SRC_FILES :=  $(SRC_DIR)/mcal/Cache          \
+              $(SRC_DIR)/mcal/Clock          \
+              $(SRC_DIR)/mcal/Mcu            \
               $(SRC_DIR)/mcal/SysTick        \
               $(SRC_DIR)/IntVect             \
               $(SRC_DIR)/main                \

@@ -4,6 +4,7 @@
 //=========================================================================================
 #include "Leds.h"
 #include "SysTick.h"
+#include "Cache.h"
 
 //=========================================================================================
 // Globals
@@ -26,6 +27,10 @@ void Isr_SysTick_IRQn(void);
 //-----------------------------------------------------------------------------
 int main(void)
 {
+  /* Enable the Cache-I and Cache-D */
+  Cache_EnableICache();
+  Cache_EnableDCache();
+
   /* Configure the led gpio */
   LED_G_CONFIGURE();
   LED_Y_CONFIGURE();
