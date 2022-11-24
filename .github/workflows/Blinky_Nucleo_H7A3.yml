@@ -1,0 +1,23 @@
+name: Blinky_Nucleo_H7A3
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+jobs:
+  target-gcc-arm-none-eabi:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
+      - name: update-tools
+        run: sudo apt install gcc-arm-none-eabi
+      - name: target-gcc-arm-none-eabi
+        run: |
+          ./Rebuild.sh
+          ls -la ./Output/Blinky_Nucleo_H7A3.hex
+        working-directory: ./
