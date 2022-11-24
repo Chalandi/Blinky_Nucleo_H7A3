@@ -19,6 +19,7 @@
 // Includes
 //=========================================================================================
 #include "STM32H7x3.h"
+#include "Clock.h"
 
 //-----------------------------------------------------------------------------
 /// \brief
@@ -64,25 +65,5 @@ void STM32H7A3ZI_InitClock(void)
   /* Enable GPIOs clock */
   RCC->AHB4ENR.bit.GPIOBEN = 1u;
   RCC->AHB4ENR.bit.GPIOEEN = 1u;
-}
-
-//-----------------------------------------------------------------------------
-/// \brief
-///
-/// \descr
-///
-/// \param
-///
-/// \return
-//-----------------------------------------------------------------------------
-void HwInitialization(void)
-{
-  extern unsigned long __INTVECT_BASE_ADDRESS;
-  
-  /* Setup the VTOR */
-  SCB->VTOR.reg = (unsigned long)&__INTVECT_BASE_ADDRESS;
-
-  /* Init the system clock */
-  STM32H7A3ZI_InitClock();
 }
 

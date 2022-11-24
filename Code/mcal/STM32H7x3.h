@@ -34723,6 +34723,10 @@ typedef struct {                                /*!< (@ 0xE000ED00) SCB Structur
 #define TIM7                        ((TIM6_Type*)              TIM7_BASE)
 #define SCB                         ((SCB_Type*)               SCB_BASE)
 
+#define CPACR  (*(volatile unsigned long*)(0xE000ED88UL))
+#define ITCMCR (*(volatile unsigned long*)(0xE000EF90UL))
+#define DTCMCR (*(volatile unsigned long*)(0xE000EF94UL))
+
 #ifdef __cplusplus
 }
 #endif
