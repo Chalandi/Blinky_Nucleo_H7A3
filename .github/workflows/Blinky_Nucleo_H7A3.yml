@@ -18,6 +18,7 @@ jobs:
         run: sudo apt install gcc-arm-none-eabi
       - name: target-gcc-arm-none-eabi
         run: |
-          ./Rebuild.sh
+          pwd
+          ls -la
+          bash Rebuild.sh
           ls -la ./Output/Blinky_Nucleo_H7A3.hex
-        working-directory: ./
