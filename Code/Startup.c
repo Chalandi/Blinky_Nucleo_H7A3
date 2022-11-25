@@ -154,7 +154,7 @@ static void Startup_RunApplication(void)
   }
 
   /* Catch unexpected exit from main or if main does not exist */
-  Startup_Unexpected_Exit(); 
+  Startup_Unexpected_Exit();
 }
 
 //-----------------------------------------------------------------------------------------

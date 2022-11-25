@@ -1,14 +1,14 @@
 ﻿# ******************************************************************************************
 #   Filename    : Makefile
-# 
+#
 #   Author      : Chalandi Amine
-#  
+#
 #   Owner       : Chalandi Amine
-#   
+#
 #   Date        : 22.11.2022
-#   
+#
 #   Description : Build system
-#   
+#
 # ******************************************************************************************
 
 HW_TARGET = H7A3
@@ -28,9 +28,10 @@ LD = arm-none-eabi-gcc
 ARMGNU = arm-none-eabi
 
 COPS  = -mlittle-endian                               \
-        -O0                                           \
-        -mfloat-abi=softfp                            \
+        -O2                                           \
+        -mfloat-abi=hard                              \
         -mthumb                                       \
+        -march=armv7e-m+fpv5                          \
         -Wa,-adhln=$(OBJ_DIR)/$(basename $(@F)).lst   \
         -g3                                           \
         -Wconversion                                  \
@@ -47,12 +48,14 @@ COPS  = -mlittle-endian                               \
         -Wextra                                       \
         -fomit-frame-pointer                          \
         -gdwarf-2                                     \
-        -fno-exceptions                               \
-        -march=armv7e-m+fpv5                          
+        -fno-exceptions
 
 ifeq ($(LD), arm-none-eabi-ld)
   LOPS = -nostartfiles                          \
          -nostdlib                              \
+         -mfloat-abi=hard                       \
+         -mthumb                                \
+         -march=armv7e-m+fpv5                   \
          -e Startup_Init                        \
          --print-memory-usage                   \
          --print-map                            \
@@ -63,10 +66,15 @@ ifeq ($(LD), arm-none-eabi-ld)
 else
   LOPS = -nostartfiles                          \
          -e Startup_Init                        \
+         -mfloat-abi=hard                       \
+         -mthumb                                \
+         -march=armv7e-m+fpv5                   \
          -Wl,--print-memory-usage               \
          -Wl,--print-map                        \
          -Wl,-dT $(SRC_DIR)/Memory_Map.ld       \
-         -Wl,-Map=$(OUTPUT_DIR)/$(PRJ_NAME).map
+         -Wl,-Map=$(OUTPUT_DIR)/$(PRJ_NAME).map \
+         --specs=nano.specs                     \
+         --specs=nosys.specs
 endif
 
 
@@ -76,7 +84,7 @@ SRC_FILES :=  $(SRC_DIR)/mcal/Cache          \
               $(SRC_DIR)/mcal/SysTick        \
               $(SRC_DIR)/IntVect             \
               $(SRC_DIR)/main                \
-              $(SRC_DIR)/Startup             
+              $(SRC_DIR)/Startup
 
 
 INC_FILES :=  $(SRC_DIR)/mcal                \
@@ -105,8 +113,6 @@ clean :
 	@-rm -rf $(OUTPUT_DIR) *.map  2>/dev/null || true
 	@-rm -rf $(OUTPUT_DIR) *.txt  2>/dev/null || true
 	@-mkdir -p $(subst \,/,$(OBJ_DIR))
-
-
 
 $(OBJ_DIR)/%.o : %.c
 	@-echo +++ compile: $(subst \,/,$<) to $(subst \,/,$@)

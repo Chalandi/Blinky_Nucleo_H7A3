@@ -1,18 +1,18 @@
 /******************************************************************************************
   Filename    : Memory_Map.ld
-  
-  Core        : ARM Cortex®-M7
-  
+
+  Core        : ARM Cortex-M7
+
   MCU         : STM32H7A3ZI
-    
+
   Author      : Chalandi Amine
- 
+
   Owner       : Chalandi Amine
-  
+
   Date        : 22.11.2022
-  
+
   Description : Linker description file for STM32H7A3ZI
-  
+
 ******************************************************************************************/
 
 /******************************************************************************************
@@ -113,7 +113,7 @@ SECTIONS
     LONG(0 + ADDR(.sbss));  LONG(SIZEOF(.sbss));
     LONG(0 + ADDR(.zbss));  LONG(SIZEOF(.zbss));
     LONG(0 + ADDR(.bbss));  LONG(SIZEOF(.bbss));
-    LONG(-1);                 LONG(-1);
+    LONG(-1);               LONG(-1);
   } > ROM
 
   /* Runtime copy table */
@@ -181,5 +181,4 @@ SECTIONS
     . = ALIGN(MAX(__SYS_STACK_SIZE , .), 8);
     PROVIDE(__SYS_STACK_TOP = .) ;
   } > RAM
-    
 }
