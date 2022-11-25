@@ -1,4 +1,4 @@
-# ******************************************************************************************
+﻿# ******************************************************************************************
 #   Filename    : Makefile
 # 
 #   Author      : Chalandi Amine
@@ -33,6 +33,7 @@ COPS  = -mlittle-endian                               \
         -mthumb                                       \
         -Wa,-adhln=$(OBJ_DIR)/$(basename $(@F)).lst   \
         -g3                                           \
+        -Wconversion                                  \
         -Wsign-conversion                             \
         -Wunused-parameter                            \
         -Wuninitialized                               \
@@ -56,7 +57,9 @@ ifeq ($(LD), arm-none-eabi-ld)
          --print-memory-usage                   \
          --print-map                            \
          -dT $(SRC_DIR)/Memory_Map.ld           \
-         -Map=$(OUTPUT_DIR)/$(PRJ_NAME).map
+         -Map=$(OUTPUT_DIR)/$(PRJ_NAME).map     \
+         --specs=nano.specs                     \
+         --specs=nosys.specs
 else
   LOPS = -nostartfiles                          \
          -e Startup_Init                        \
