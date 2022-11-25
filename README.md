@@ -1,17 +1,14 @@
 Blinky_Nucleo_H7A3
 ==================
 
-<p align="center">
-    <a href="https://github.com/chalandi/Blinky_Nucleo_H7A3/actions">
-        <img src="https://github.com/chalandi/Blinky_Nucleo_H7A3/actions/workflows/Blinky_Nucleo_H7A3.yml/badge.svg" alt="Build Status"></a>
-</p>
+[![Build Status](https://github.com/chalandi/Blinky_Nucleo_H7A3/actions/workflows/Blinky_Nucleo_H7A3.yml/badge.svg)](https://github.com/chalandi/Blinky_Nucleo_H7A3/actions)
 
-This repository implements a pure, manually-written,
+This repository implements an entirely manually-written, pure
 _bare_ _metal_ Blinky Project for the STM32H7A3ZIT6Q (NUCLEO-144-H7A3).
 
 Features include:
   - CPU, power, chip, clock and PLL initialization,
-  - data and instruction cache and FPU initialization,
+  - D/I cache and FPU initialization,
   - timebase derived from SysTick,
   - blinky LED show on three bits,
   - implementation in C99 with absolute minimal use of assembly.
@@ -31,11 +28,13 @@ at 280 MHz with the appropriate number of flash-access wait states.
 
 Following low-level chip initialization, the program jumps to
 the `main()` subroutine. Here the data and instruction caches
-are initialized to produce full CPU capabilities of this controller.
+are initialized to produce full CPU performance capabilities
+of the microcontroller.
 
 The blinky LED show utilizes three LED ports to _count_
 in binary in a visual fashion. The SysTick interrupt
-is enabled to provide the timebase for the blinky LED show.
+is enabled to provide the timebase for the blinky LED show,
+with the LED toggling action in the interrupt handler.
 
 ## Building the Application
 
@@ -48,6 +47,13 @@ bash Rebuild.sh
 
 The build results including ELF-file, HEX-mask, MAP-file
 and assembly list file are created in the `Output`directory.
+
+If `gcc-arm-none-eabi` is not installed, it can easily
+be installed with
+
+```sh
+sudo apt install gcc-arm-none-eabi
+```
 
 ## Continuous Integration
 
