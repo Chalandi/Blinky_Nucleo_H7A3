@@ -32,6 +32,7 @@ typedef struct
 extern const runtimeCopyTable_t __RUNTIME_COPY_TABLE[];
 extern const runtimeClearTable_t __RUNTIME_CLEAR_TABLE[];
 extern unsigned long __CTOR_LIST__[];
+extern unsigned long __ITCM__main__entrypoint;
 
 //=========================================================================================
 // Defines
@@ -150,7 +151,9 @@ static void Startup_RunApplication(void)
   if((unsigned int) &main != 0)
   {
     /* Call the main function */
-    main();
+    //main(); --> avoid this call as the linker will use veneer calls
+    __asm("ldr r0, =__ITCM__main__entrypoint");
+    __asm("bx r0");
   }
 
   /* Catch unexpected exit from main or if main does not exist */

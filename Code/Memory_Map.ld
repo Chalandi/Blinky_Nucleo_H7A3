@@ -51,8 +51,9 @@ SRAM_ITCM_LENGTH            = 64K;
 
 MEMORY
 {
-  ROM(rx)  : ORIGIN = FLASH_START_ADDRESS, LENGTH = FLASH_LENGTH
-  RAM(rwx) : ORIGIN = SRAM_DTCM_START_ADDRESS, LENGTH = SRAM_DTCM_LENGTH
+  ITCM(rwx) : ORIGIN = SRAM_ITCM_START_ADDRESS, LENGTH = SRAM_ITCM_LENGTH
+  ROM(rx)   : ORIGIN = FLASH_START_ADDRESS, LENGTH = FLASH_LENGTH
+  RAM(rwx)  : ORIGIN = SRAM_DTCM_START_ADDRESS, LENGTH = SRAM_DTCM_LENGTH
 }
 
 /******************************************************************************************
@@ -60,25 +61,34 @@ MEMORY
 ******************************************************************************************/
 SECTIONS
 {
+   /* Boot sector (Flash) */
+   .boot : ALIGN(4)
+   {
+      *(.ExceptionTable)
+      *Startup.o(.text)
+      *Clock.o(.text)
+      *Mcu.o(.text)
+   } > ROM
+
   /* Interrupt vector table */
   .intvect : ALIGN(4)
   {
     PROVIDE(__INTVECT_BASE_ADDRESS = .) ;
     *(.intvect)
     KEEP(*(.intvect))
-  } > ROM
+  } > ITCM  AT>ROM
   
   /* Program code (text) */
   .text : ALIGN(4)
   {
     *(.text)
-  } > ROM
+  } > ITCM  AT>ROM
 
   /* Read-only data (.rodata) */
   .rodata : ALIGN(4)
   {
     *(.rodata)
-  } > ROM
+  } > ITCM  AT>ROM
 
  /* Section for constructors */
   .ctors : ALIGN(4)
@@ -120,6 +130,11 @@ SECTIONS
   .copy_sec : ALIGN(4)
   {
     PROVIDE(__RUNTIME_COPY_TABLE = .) ;
+    /* RAM CODE (ITCM) */
+    LONG(LOADADDR(.intvect)); LONG(0 + ADDR(.intvect)); LONG(SIZEOF(.intvect));
+    LONG(LOADADDR(.text));    LONG(0 + ADDR(.text));    LONG(SIZEOF(.text));
+    LONG(LOADADDR(.rodata));  LONG(0 + ADDR(.rodata));  LONG(SIZEOF(.rodata));
+    /* RAM DATA */
     LONG(LOADADDR(.data));  LONG(0 + ADDR(.data));  LONG(SIZEOF(.data));
     LONG(LOADADDR(.sdata)); LONG(0 + ADDR(.sdata)); LONG(SIZEOF(.sdata));
     LONG(LOADADDR(.zdata)); LONG(0 + ADDR(.zdata)); LONG(SIZEOF(.zdata));
@@ -182,3 +197,4 @@ SECTIONS
     PROVIDE(__SYS_STACK_TOP = .) ;
   } > RAM
 }
+__ITCM__main__entrypoint = main;

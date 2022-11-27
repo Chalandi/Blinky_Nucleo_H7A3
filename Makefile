@@ -28,7 +28,7 @@ LD = arm-none-eabi-gcc
 ARMGNU = arm-none-eabi
 
 COPS  = -mlittle-endian                               \
-        -O2                                           \
+        -O0                                           \
         -march=armv7e-m+fpv5-d16                      \
         -mtune=cortex-m7                              \
         -mthumb                                       \
@@ -137,3 +137,5 @@ $(OUTPUT_DIR)/$(PRJ_NAME).elf : $(FILES_O)
 	@$(LD) $(LOPS) $(FILES_O) -o $(OUTPUT_DIR)/$(PRJ_NAME).elf
 	@$(ARMGNU)-objdump -D $(OUTPUT_DIR)/$(PRJ_NAME).elf > $(OUTPUT_DIR)/$(PRJ_NAME).list
 	@$(ARMGNU)-objcopy $(OUTPUT_DIR)/$(PRJ_NAME).elf -O ihex $(OUTPUT_DIR)/$(PRJ_NAME).hex
+	@$(ARMGNU)-readelf -S -s $(OUTPUT_DIR)/$(PRJ_NAME).elf > $(OUTPUT_DIR)/$(PRJ_NAME).readelf
+
