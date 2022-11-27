@@ -29,9 +29,11 @@ ARMGNU = arm-none-eabi
 
 COPS  = -mlittle-endian                               \
         -O2                                           \
-        -mfloat-abi=hard                              \
+        -march=armv7e-m+fpv5-d16                      \
+        -mtune=cortex-m7                              \
         -mthumb                                       \
-        -march=armv7e-m+fpv5                          \
+        -mfloat-abi=hard                              \
+        -ffast-math                                   \
         -Wa,-adhln=$(OBJ_DIR)/$(basename $(@F)).lst   \
         -g3                                           \
         -Wconversion                                  \
@@ -53,9 +55,11 @@ COPS  = -mlittle-endian                               \
 ifeq ($(LD), arm-none-eabi-ld)
   LOPS = -nostartfiles                          \
          -nostdlib                              \
-         -mfloat-abi=hard                       \
+         -march=armv7e-m+fpv5-d16               \
+         -mtune=cortex-m7                       \
          -mthumb                                \
-         -march=armv7e-m+fpv5                   \
+         -mfloat-abi=hard                       \
+         -ffast-math                            \
          -e Startup_Init                        \
          --print-memory-usage                   \
          --print-map                            \
@@ -66,9 +70,11 @@ ifeq ($(LD), arm-none-eabi-ld)
 else
   LOPS = -nostartfiles                          \
          -e Startup_Init                        \
-         -mfloat-abi=hard                       \
+         -march=armv7e-m+fpv5-d16               \
+         -mtune=cortex-m7                       \
          -mthumb                                \
-         -march=armv7e-m+fpv5                   \
+         -mfloat-abi=hard                       \
+         -ffast-math                            \
          -Wl,--print-memory-usage               \
          -Wl,--print-map                        \
          -Wl,-dT $(SRC_DIR)/Memory_Map.ld       \
