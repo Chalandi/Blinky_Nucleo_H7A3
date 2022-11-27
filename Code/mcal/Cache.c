@@ -121,15 +121,17 @@ void Cache_EnableDCache(void)
 
     /* Invalidate the data cache */
     sets = CCSIDR->bits.NumSets;
+    __asm("DSB");
     do
     {
-      ways = CCSIDR->bits.LineSize;
-      
+      ways = CCSIDR->bits.Associativity;
+      __asm("DSB");
       do
       {
-        DCISW->bits.Set = sets;
-        DCISW->bits.Way = ways;
+        DCISW->reg = (ways << 30u) | (sets << 5u);
+        __asm("DSB");
       }while(ways-- != 0);
+      __asm("DSB");
     
     }while(sets-- != 0);
     __asm("DSB");
@@ -170,12 +172,12 @@ void Cache_DisableDCache(void)
     sets = CCSIDR->bits.NumSets;
     do
     {
-      ways = CCSIDR->bits.LineSize;
-      
+      ways = CCSIDR->bits.Associativity;
+      __asm("DSB");
       do
       {
-        DCCISW->bits.Set = sets;
-        DCCISW->bits.Way = ways;
+        DCCISW->reg = (ways << 30u) | (sets << 5u);
+        __asm("DSB");
       }while(ways-- != 0);
     
     }while(sets-- != 0);
@@ -207,12 +209,12 @@ void Cache_InvalidateDCache(void)
   sets = CCSIDR->bits.NumSets;
   do
   {
-    ways = CCSIDR->bits.LineSize;
-    
+    ways = CCSIDR->bits.Associativity;
+    __asm("DSB");
     do
     {
-      DCISW->bits.Set = sets;
-      DCISW->bits.Way = ways;
+      DCISW->reg = (ways << 30u) | (sets << 5u);
+      __asm("DSB");
     }while(ways-- != 0);
   
   }while(sets-- != 0);
@@ -243,12 +245,12 @@ void Cache_CleanDCache(void)
   sets = CCSIDR->bits.NumSets;
   do
   {
-    ways = CCSIDR->bits.LineSize;
-    
+    ways = CCSIDR->bits.Associativity;
+    __asm("DSB");
     do
     {
-      DCCSW->bits.Set = sets;
-      DCCSW->bits.Way = ways;
+      DCCSW->reg = (ways << 30u) | (sets << 5u);
+      __asm("DSB");
     }while(ways-- != 0);
   
   }while(sets-- != 0);
@@ -279,12 +281,12 @@ void Cache_CleanInvlaidateDCache(void)
   sets = CCSIDR->bits.NumSets;
   do
   {
-    ways = CCSIDR->bits.LineSize;
-    
+    ways = CCSIDR->bits.Associativity;
+    __asm("DSB");
     do
     {
-      DCCISW->bits.Set = sets;
-      DCCISW->bits.Way = ways;
+      DCCISW->reg = (ways << 30u) | (sets << 5u);
+      __asm("DSB");
     }while(ways-- != 0);
   
   }while(sets-- != 0);
