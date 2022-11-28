@@ -15,7 +15,7 @@ jobs:
         with:
           fetch-depth: '0'
       - name: update-tools
-        run: sudo apt install gcc-arm-none-eabi
+        run: sudo sudo apt-get update -y;sudo apt-get install -y gcc-arm-none-eabi;sudo apt-get install -y python
       - name: target-gcc-arm-none-eabi
         run: |
           bash Rebuild.sh
