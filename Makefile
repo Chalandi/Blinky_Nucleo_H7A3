@@ -32,7 +32,7 @@ OBJDUMP = arm-none-eabi-objdump
 OBJCOPY = arm-none-eabi-objcopy
 READELF = arm-none-eabi-readelf
 
-PYTHON = py
+PYTHON = python
 
 ############################################################################################
 # Optimization Compiler flags
