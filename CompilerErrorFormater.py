@@ -31,38 +31,27 @@ class Style:
     UNDERLINE = '\033[4m'
     RESET = '\033[0m'
 
-# Command-line syntax :  py  <InputFile>  <{-COLOR|-NOCOLOR}>  <{-GHS|-GCC|-ARMCC}>
+# Command-line syntax :  py  <InputFile>  <{-COLOR|-NOCOLOR}>
 
 # Get command-line parameters
-Cmd, InputFile, ColorFlag, Compiler = sys.argv
+Cmd, InputFile, ColorFlag = sys.argv
 
-if Compiler=="-GHS":
-    warning_pattern = ": warning #"
-    error_pattern = ": error #"
-    note_pattern = ": note #"
-    warning_pattern_U = ": Warning #"
-    error_pattern_U = ": Error #"
-    note_pattern_U = ": Note #"
-else:
-    warning_pattern = ": warning:"
-    error_pattern = ": error:"
-    note_pattern = ": note:"
-    warning_pattern_U = ": Warning:"
-    error_pattern_U = ": Error:"
-    note_pattern_U = ": Note:"
+warning_pattern = ": warning:"
+error_pattern = ": error:"
+note_pattern = ": note:"
+warning_pattern_U = ": Warning:"
+error_pattern_U = ": Error:"
+note_pattern_U = ": Note:"
 
 
 def vs_format_msg(text, pattern, color):
-    if Compiler=="-GHS":
-        file_path = ((re.search("\D.*\.\w\D", text)).group(0)).replace("\"","")
-        line_number = re.search("\d+",(re.search("\W \w+ \d+\:", text).group(0))).group(0)
-        compiler_msg = re.search("\W \w+ \W\d+\W.*", text).group(0)
-        vs_msg = file_path + "(" + line_number +")" + compiler_msg
+    compiler_msg = text[(text.find(pattern) + len(pattern)):]
+    file_path = (re.search("\D.*\.\w", text)).group(0)
+    if (re.search("\:\d+\:", text)) != None:
+      line_number = "(" + (re.search("\d+", (re.search("\:\d+\:", text)).group(0))).group(0) +")"
     else:
-        compiler_msg = text[(text.find(pattern) + len(pattern)):]
-        file_path = (re.search("\D.*\.\w", text)).group(0)
-        line_number = (re.search("\d+", (re.search("\:\d+\:", text)).group(0))).group(0)
-        vs_msg = file_path + "(" + line_number +")" + pattern + compiler_msg
+      line_number = ""
+    vs_msg = file_path + line_number + pattern + compiler_msg
     if ColorFlag=="-COLOR":
       print(color + vs_msg.strip() + Style.RESET)
     else:
@@ -71,16 +60,9 @@ def vs_format_msg(text, pattern, color):
 
 err_file = open(InputFile, 'r')
 
-if Compiler=="-GHS":
-    stream = err_file.read()
-    lines = stream.split("^")
-else:
-    lines = err_file.readlines()
+lines = err_file.readlines()
 
 for line in lines:
-
-    if Compiler=="-GHS":
-        line = " ".join((((line.strip()).replace("\n"," ")).replace("\r"," ")).split())
 
     if line.find(warning_pattern) > 0:
         vs_format_msg(line, warning_pattern, Style.YELLOW)
