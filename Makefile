@@ -75,7 +75,7 @@ OPT_MODIFIED_O2 = -O1                                          \
                   -ftree-slp-vectorize                         \
                   -ftree-switch-conversion  -ftree-tail-merge  \
                   -ftree-vrp                                   \
-                  -fvect-cost-model=very-cheap
+                  -fvect-cost-model=cheap
 
 NO_OPT = -O0
 
