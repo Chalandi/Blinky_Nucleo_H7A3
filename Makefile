@@ -11,24 +11,82 @@
 #
 # ******************************************************************************************
 
-HW_TARGET = H7A3
+############################################################################################
+# Defines
+############################################################################################
 
-PRJ_NAME = Blinky_Nucleo_$(HW_TARGET)
-
+HW_TARGET  = H7A3
+PRJ_NAME   = Blinky_Nucleo_$(HW_TARGET)
 OUTPUT_DIR = Output
-
 OBJ_DIR    = $(OUTPUT_DIR)/Obj
+SRC_DIR    = Code
 
-SRC_DIR = Code
+############################################################################################
+# Toolchain
+############################################################################################
 
-AS = arm-none-eabi-as
-CC = arm-none-eabi-gcc
-LD = arm-none-eabi-gcc
+AS      = arm-none-eabi-as
+CC      = arm-none-eabi-gcc
+LD      = arm-none-eabi-gcc
+OBJDUMP = arm-none-eabi-objdump
+OBJCOPY = arm-none-eabi-objcopy
+READELF = arm-none-eabi-readelf
 
-ARMGNU = arm-none-eabi
+
+############################################################################################
+# Optimization Compiler flags
+############################################################################################
+
+OPT_MODIFIED_O2 = -O1                                          \
+                  -falign-functions  -falign-jumps             \
+                  -falign-labels  -falign-loops                \
+                  -fcaller-saves                               \
+                  -fcode-hoisting                              \
+                  -fcrossjumping                               \
+                  -fcse-follow-jumps  -fcse-skip-blocks        \
+                  -fdelete-null-pointer-checks                 \
+                  -fdevirtualize  -fdevirtualize-speculatively \
+                  -fexpensive-optimizations                    \
+                  -ffinite-loops                               \
+                  -fgcse  -fgcse-lm                            \
+                  -fhoist-adjacent-loads                       \
+                  -finline-functions                           \
+                  -finline-small-functions                     \
+                  -findirect-inlining                          \
+                  -fipa-bit-cp  -fipa-cp  -fipa-icf            \
+                  -fipa-ra  -fipa-sra  -fipa-vrp               \
+                  -fisolate-erroneous-paths-dereference        \
+                  -flra-remat                                  \
+                  -foptimize-sibling-calls                     \
+                  -foptimize-strlen                            \
+                  -fpartial-inlining                           \
+                  -fpeephole2                                  \
+                  -freorder-blocks-algorithm=stc               \
+                  -frerun-cse-after-loop                       \
+                  -fschedule-insns  -fschedule-insns2          \
+                  -fsched-interblock  -fsched-spec             \
+                  -fstore-merging                              \
+                  -fstrict-aliasing                            \
+                  -fthread-jumps                               \
+                  -ftree-builtin-call-dce                      \
+                  -ftree-loop-vectorize                        \
+                  -ftree-pre                                   \
+                  -ftree-slp-vectorize                         \
+                  -ftree-switch-conversion  -ftree-tail-merge  \
+                  -ftree-vrp                                   \
+                  -fvect-cost-model=very-cheap
+
+NO_OPT = -O0
+
+OPT = $(OPT_MODIFIED_O2)
+
+############################################################################################
+# C Compiler flags
+############################################################################################
 
 COPS  = -mlittle-endian                               \
-        -O0                                           \
+        -mlong-calls                                  \
+        $(OPT)                                        \
         -march=armv7e-m+fpv5-d16                      \
         -mtune=cortex-m7                              \
         -mthumb                                       \
@@ -51,6 +109,52 @@ COPS  = -mlittle-endian                               \
         -fomit-frame-pointer                          \
         -gdwarf-2                                     \
         -fno-exceptions
+
+############################################################################################
+# C++ Compiler flags
+############################################################################################
+
+CPPOPS  = -mlittle-endian                               \
+          -mlong-calls                                  \
+          $(OPT)                                        \
+          -march=armv7e-m+fpv5-d16                      \
+          -mtune=cortex-m7                              \
+          -mthumb                                       \
+          -mfloat-abi=hard                              \
+          -ffast-math                                   \
+          -Wa,-adhln=$(OBJ_DIR)/$(basename $(@F)).lst   \
+          -g3                                           \
+          -Wconversion                                  \
+          -Wsign-conversion                             \
+          -Wunused-parameter                            \
+          -Wuninitialized                               \
+          -Wmissing-declarations                        \
+          -Wshadow                                      \
+          -Wunreachable-code                            \
+          -Wmissing-include-dirs                        \
+          -Wall                                         \
+          -Wextra                                       \
+          -fomit-frame-pointer                          \
+          -gdwarf-2                                     \
+          -fno-exceptions                               \
+          -x c++                                        \
+          -fno-rtti                                     \
+          -fno-use-cxa-atexit                           \
+          -fno-nonansi-builtins                         \
+          -fno-threadsafe-statics                       \
+          -fno-enforce-eh-specs                         \
+          -ftemplate-depth=128                          \
+          -Wzero-as-null-pointer-constant
+
+############################################################################################
+# Assembler flags
+############################################################################################
+
+ASOPS = 
+
+############################################################################################
+# Linker flags
+############################################################################################
 
 ifeq ($(LD), arm-none-eabi-ld)
   LOPS = -nostartfiles                          \
@@ -83,6 +187,9 @@ else
          --specs=nosys.specs
 endif
 
+############################################################################################
+# Source Files
+############################################################################################
 
 SRC_FILES :=  $(SRC_DIR)/mcal/Cache          \
               $(SRC_DIR)/mcal/Clock          \
@@ -92,9 +199,15 @@ SRC_FILES :=  $(SRC_DIR)/mcal/Cache          \
               $(SRC_DIR)/main                \
               $(SRC_DIR)/Startup
 
-
+############################################################################################
+# Include Paths
+############################################################################################
 INC_FILES :=  $(SRC_DIR)/mcal                \
               $(SRC_DIR)
+
+############################################################################################
+# Rules
+############################################################################################
 
 VPATH := $(subst \,/,$(sort $(dir $(SRC_FILES)) $(OBJ_DIR)))
 
@@ -126,16 +239,15 @@ $(OBJ_DIR)/%.o : %.c
 
 $(OBJ_DIR)/%.o : %.s
 	@-echo +++ compile: $(subst \,/,$<) to $(subst \,/,$@)
-	@$(AS) $< -o $(OBJ_DIR)/$(basename $(@F)).o
-
+	@$(AS) $(ASOPS) $< -o $(OBJ_DIR)/$(basename $(@F)).o
 
 $(OBJ_DIR)/%.o : %.cpp
 	@-echo +++ compile: $(subst \,/,$<) to $(subst \,/,$@)
-	@$(CC) $(COPS) -I$(INC_FILES) $< -o $(OBJ_DIR)/$(basename $(@F)).o
+	@$(CC) $(CPPOPS) -I$(INC_FILES) $< -o $(OBJ_DIR)/$(basename $(@F)).o
 
 $(OUTPUT_DIR)/$(PRJ_NAME).elf : $(FILES_O)
 	@$(LD) $(LOPS) $(FILES_O) -o $(OUTPUT_DIR)/$(PRJ_NAME).elf
-	@$(ARMGNU)-objdump -D $(OUTPUT_DIR)/$(PRJ_NAME).elf > $(OUTPUT_DIR)/$(PRJ_NAME).list
-	@$(ARMGNU)-objcopy $(OUTPUT_DIR)/$(PRJ_NAME).elf -O ihex $(OUTPUT_DIR)/$(PRJ_NAME).hex
-	@$(ARMGNU)-readelf -S -s $(OUTPUT_DIR)/$(PRJ_NAME).elf > $(OUTPUT_DIR)/$(PRJ_NAME).readelf
+	@$(OBJDUMP) -D $(OUTPUT_DIR)/$(PRJ_NAME).elf > $(OUTPUT_DIR)/$(PRJ_NAME).list
+	@$(OBJCOPY) $(OUTPUT_DIR)/$(PRJ_NAME).elf -O ihex $(OUTPUT_DIR)/$(PRJ_NAME).hex
+	@$(READELF) -S -s $(OUTPUT_DIR)/$(PRJ_NAME).elf > $(OUTPUT_DIR)/$(PRJ_NAME).readelf
 
