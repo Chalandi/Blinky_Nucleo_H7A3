@@ -32,7 +32,7 @@ OBJDUMP = arm-none-eabi-objdump
 OBJCOPY = arm-none-eabi-objcopy
 READELF = arm-none-eabi-readelf
 
-PYTHON = py
+PYTHON = python
 
 ############################################################################################
 # Optimization Compiler flags
@@ -151,7 +151,10 @@ CPPOPS  = -mlittle-endian                               \
 # Assembler flags
 ############################################################################################
 
-ASOPS = 
+ASOPS =  -march=armv7e-m+fpv5-d16 \
+         -mlittle-endian          \
+         -mthumb                  \
+         -alh 
 
 ############################################################################################
 # Linker flags
@@ -237,20 +240,17 @@ clean :
 $(OBJ_DIR)/%.o : %.c
 	@-echo +++ compile: $(subst \,/,$<) to $(subst \,/,$@)
 	@-$(CC) $(COPS) $(addprefix -I, $(INC_FILES)) -c $< -o $(OBJ_DIR)/$(basename $(@F)).o 2> $(OBJ_DIR)/$(basename $(@F)).err
-	@-cat $(OBJ_DIR)/$(basename $(@F)).err
-#	@-$(PYTHON) CompilerErrorFormater.py $(OBJ_DIR)/$(basename $(@F)).err -COLOR -GCC
+	@-$(PYTHON) CompilerErrorFormater.py $(OBJ_DIR)/$(basename $(@F)).err -COLOR -GCC
 
 $(OBJ_DIR)/%.o : %.s
 	@-echo +++ compile: $(subst \,/,$<) to $(subst \,/,$@)
-	@$(AS) $(ASOPS) $< -o $(OBJ_DIR)/$(basename $(@F)).o 2> $(OBJ_DIR)/$(basename $(@F)).err
-	@-cat $(OBJ_DIR)/$(basename $(@F)).err
-#	@-$(PYTHON) CompilerErrorFormater.py $(OBJ_DIR)/$(basename $(@F)).err -COLOR -GCC
+	@$(AS) $(ASOPS) $< -o $(OBJ_DIR)/$(basename $(@F)).o 2> $(OBJ_DIR)/$(basename $(@F)).err >$(OBJ_DIR)/$(basename $(@F)).lst
+	@-$(PYTHON) CompilerErrorFormater.py $(OBJ_DIR)/$(basename $(@F)).err -COLOR -GCC
 
 $(OBJ_DIR)/%.o : %.cpp
 	@-echo +++ compile: $(subst \,/,$<) to $(subst \,/,$@)
 	@$(CC) $(CPPOPS) -I$(INC_FILES) $< -o $(OBJ_DIR)/$(basename $(@F)).o 2> $(OBJ_DIR)/$(basename $(@F)).err
-	@-cat $(OBJ_DIR)/$(basename $(@F)).err
-#	@-$(PYTHON) CompilerErrorFormater.py $(OBJ_DIR)/$(basename $(@F)).err -COLOR -GCC
+	@-$(PYTHON) CompilerErrorFormater.py $(OBJ_DIR)/$(basename $(@F)).err -COLOR -GCC
 
 $(OUTPUT_DIR)/$(PRJ_NAME).elf : $(FILES_O)
 	@$(LD) $(LOPS) $(FILES_O) -o $(OUTPUT_DIR)/$(PRJ_NAME).elf
