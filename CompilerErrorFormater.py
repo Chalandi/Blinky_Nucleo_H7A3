@@ -46,7 +46,10 @@ note_pattern_U = ": Note:"
 
 def vs_format_msg(text, pattern, color):
     compiler_msg = text[(text.find(pattern) + len(pattern)):]
-    file_path = (re.search("\D.*\.\w", text)).group(0)
+    if (re.search("\D.*\.\w", text)) != None:
+      file_path = (re.search("\D.*\.\w", text)).group(0)
+    else:
+      file_path =""
     if (re.search("\:\d+\:", text)) != None:
       line_number = "(" + (re.search("\d+", (re.search("\:\d+\:", text)).group(0))).group(0) +")"
     else:
