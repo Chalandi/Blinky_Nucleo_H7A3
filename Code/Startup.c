@@ -91,18 +91,20 @@ static void Startup_InitRam(void)
   unsigned long ClearTableIdx = 0;
   unsigned long CopyTableIdx  = 0;
 
-  /* Clear Table */
+  /* memlib functions */
+  extern void memlib_32BytesAlign_memcpy(void *dest, const void * src, unsigned long size);
+  extern void memlib_32BytesAlign_memclr(void *src, unsigned long size);
 
+  /* Clear Table */
   while((__STARTUP_RUNTIME_CLEARTABLE)[ClearTableIdx].Addr != (unsigned long)-1 && (__STARTUP_RUNTIME_CLEARTABLE)[ClearTableIdx].size != (unsigned long)-1)
   {
-    for(unsigned int cpt = 0; cpt < (__STARTUP_RUNTIME_CLEARTABLE)[ClearTableIdx].size; cpt++)
-    {
-      *(volatile unsigned char*)((unsigned long)((__STARTUP_RUNTIME_CLEARTABLE)[ClearTableIdx].Addr) + cpt) = 0;
-    }
+    memlib_32BytesAlign_memclr(
+                               (unsigned long*)((__STARTUP_RUNTIME_CLEARTABLE)[ClearTableIdx].Addr),
+                               (unsigned long)((__STARTUP_RUNTIME_CLEARTABLE)[ClearTableIdx].size)
+                              );
 
     ClearTableIdx++;
   }
-
   /* Copy Table */
 
   while((__STARTUP_RUNTIME_COPYTABLE)[CopyTableIdx].sourceAddr != (unsigned long)-1 &&
@@ -110,11 +112,11 @@ static void Startup_InitRam(void)
         (__STARTUP_RUNTIME_COPYTABLE)[CopyTableIdx].size       != (unsigned long)-1
        )
   {
-    for(unsigned int cpt = 0; cpt < (__STARTUP_RUNTIME_COPYTABLE)[CopyTableIdx].size; cpt++)
-    {
-      *(volatile unsigned char*)((unsigned long)((__STARTUP_RUNTIME_COPYTABLE)[CopyTableIdx].targetAddr) + cpt) = 
-               *(volatile unsigned char*)((unsigned long)((__STARTUP_RUNTIME_COPYTABLE)[CopyTableIdx].sourceAddr) + cpt);
-    }
+    memlib_32BytesAlign_memcpy(
+                               (unsigned long*)((__STARTUP_RUNTIME_COPYTABLE)[CopyTableIdx].targetAddr),
+                               (const unsigned long *)((__STARTUP_RUNTIME_COPYTABLE)[CopyTableIdx].sourceAddr),
+                               (unsigned long)((__STARTUP_RUNTIME_COPYTABLE)[CopyTableIdx].size)
+                              );
 
     CopyTableIdx++;
   }

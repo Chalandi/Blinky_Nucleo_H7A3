@@ -64,10 +64,11 @@ SECTIONS
    /* Boot sector (Flash) */
    .boot : ALIGN(4)
    {
-      *(.ExceptionTable)
-      *Startup.o(.text)
-      *Clock.o(.text)
-      *Mcu.o(.text)
+     *(.ExceptionTable)
+     *Startup.o(.text)
+     *Clock.o(.text)
+     *Mcu.o(.text)
+     *memlib.o(.text)
    } > ROM
 
   /* Interrupt vector table */
@@ -76,18 +77,21 @@ SECTIONS
     PROVIDE(__INTVECT_BASE_ADDRESS = .) ;
     *(.intvect)
     KEEP(*(.intvect))
+    . = ALIGN(32);
   } > ITCM  AT>ROM
   
   /* Program code (text) */
   .text : ALIGN(4)
   {
     *(.text)
+    . = ALIGN(32);
   } > ITCM  AT>ROM
 
   /* Read-only data (.rodata) */
   .rodata : ALIGN(4)
   {
     *(.rodata)
+    . = ALIGN(32);
   } > ITCM  AT>ROM
 
  /* Section for constructors */
@@ -120,9 +124,6 @@ SECTIONS
   {
     PROVIDE(__RUNTIME_CLEAR_TABLE = .) ;
     LONG(0 + ADDR(.bss));   LONG(SIZEOF(.bss));
-    LONG(0 + ADDR(.sbss));  LONG(SIZEOF(.sbss));
-    LONG(0 + ADDR(.zbss));  LONG(SIZEOF(.zbss));
-    LONG(0 + ADDR(.bbss));  LONG(SIZEOF(.bbss));
     LONG(-1);               LONG(-1);
   } > ROM
 
@@ -136,9 +137,6 @@ SECTIONS
     LONG(LOADADDR(.rodata));  LONG(0 + ADDR(.rodata));  LONG(SIZEOF(.rodata));
     /* RAM DATA */
     LONG(LOADADDR(.data));  LONG(0 + ADDR(.data));  LONG(SIZEOF(.data));
-    LONG(LOADADDR(.sdata)); LONG(0 + ADDR(.sdata)); LONG(SIZEOF(.sdata));
-    LONG(LOADADDR(.zdata)); LONG(0 + ADDR(.zdata)); LONG(SIZEOF(.zdata));
-    LONG(LOADADDR(.bdata)); LONG(0 + ADDR(.bdata)); LONG(SIZEOF(.bdata));
     LONG(-1);                 LONG(-1);                  LONG(-1);
   } > ROM 
 
@@ -146,48 +144,14 @@ SECTIONS
   .data : ALIGN(4) 
   {
     *(.data)
+    . = ALIGN(32);
   } > RAM  AT>ROM
 
   /* The uninitialized (zero-cleared) bss section */
   .bss : ALIGN(4)
   {
     *(.bss)
-  } > RAM
-
-  /* The ROM-to-RAM initialized sdata section */
-  .sdata : ALIGN(4)
-  {
-    *(.sdata)
-  } > RAM  AT>ROM
-
-  /* The uninitialized (zero-cleared) sbss section */
-  .sbss : ALIGN(4)
-  {
-    *(.sbss)
-  } > RAM
-
-  /* The ROM-to-RAM initialized zdata section */
-  .zdata : ALIGN(4)
-  {
-    *(.zdata)
-  } > RAM  AT>ROM
-
-  /* The uninitialized (zero-cleared) zbss section */
-  .zbss : ALIGN(4)
-  {
-    *(.zbss)
-  } > RAM
-
-  /* The ROM-to-RAM initialized bdata section */
-  .bdata : ALIGN(4)
-  {
-    *(.bdata)
-  } > RAM  AT>ROM
-
-  /* The uninitialized (zero-cleared) bbss section */
-  .bbss : ALIGN(4)
-  {
-    *(.sbss)
+    . = ALIGN(32);
   } > RAM
 
   /* user-system mode stack definition */
