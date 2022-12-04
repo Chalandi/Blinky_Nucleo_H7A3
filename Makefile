@@ -37,6 +37,7 @@ VARIANT = $(EXECUTE_CODE_FROM_FLASH)
 
 AS      = arm-none-eabi-as
 CC      = arm-none-eabi-gcc
+CPP     = arm-none-eabi-g++
 LD      = arm-none-eabi-gcc
 OBJDUMP = arm-none-eabi-objdump
 OBJCOPY = arm-none-eabi-objcopy
@@ -233,7 +234,7 @@ $(OBJ_DIR)/%.o : %.s
 
 $(OBJ_DIR)/%.o : %.cpp
 	@-echo +++ compile: $(subst \,/,$<) to $(subst \,/,$@)
-	@$(CC) $(CPPOPS) -I$(INC_FILES) $< -o $(OBJ_DIR)/$(basename $(@F)).o 2> $(OBJ_DIR)/$(basename $(@F)).err
+	@$(CPP) $(CPPOPS) $(addprefix -I, $(INC_FILES)) -c $< -o $(OBJ_DIR)/$(basename $(@F)).o 2> $(OBJ_DIR)/$(basename $(@F)).err
 	@-$(PYTHON) CompilerErrorFormater.py $(OBJ_DIR)/$(basename $(@F)).err -COLOR
 
 $(OUTPUT_DIR)/$(PRJ_NAME).elf : $(FILES_O) $(LD_SCRIPT)
