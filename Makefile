@@ -19,7 +19,17 @@ HW_TARGET  = H7A3
 PRJ_NAME   = Blinky_Nucleo_$(HW_TARGET)
 OUTPUT_DIR = Output
 OBJ_DIR    = $(OUTPUT_DIR)/Obj
+LD_SCRIPT  = $(OUTPUT_DIR)/$(PRJ_NAME).ld
 SRC_DIR    = Code
+
+############################################################################################
+# Variant
+############################################################################################
+EXECUTE_CODE_FROM_ITCM  = -DVARIANT_EXECUTE_CODE_FROM_ITCM
+EXECUTE_CODE_FROM_FLASH = -DVARIANT_EXECUTE_CODE_FROM_FLASH
+
+# Select which variant you want to use
+VARIANT = $(EXECUTE_CODE_FROM_FLASH)
 
 ############################################################################################
 # Toolchain
@@ -59,6 +69,7 @@ VERBOSE_GCC = -frecord-gcc-switches -fverbose-asm
 COPS  = -mlittle-endian                               \
         -mlong-calls                                  \
         $(OPT)                                        \
+        $(VARIANT)                                    \
         -march=armv7e-m+fpv5-d16                      \
         -mtune=cortex-m7                              \
         -mthumb                                       \
@@ -89,6 +100,7 @@ COPS  = -mlittle-endian                               \
 CPPOPS  = -mlittle-endian                               \
           -mlong-calls                                  \
           $(OPT)                                        \
+          $(VARIANT)                                    \
           -march=armv7e-m+fpv5-d16                      \
           -mtune=cortex-m7                              \
           -mthumb                                       \
@@ -142,7 +154,7 @@ ifeq ($(LD), arm-none-eabi-ld)
          -e Startup_Init                        \
          --print-memory-usage                   \
          --print-map                            \
-         -dT $(SRC_DIR)/Memory_Map.ld           \
+         -dT $(LD_SCRIPT)                       \
          -Map=$(OUTPUT_DIR)/$(PRJ_NAME).map     \
          --specs=nano.specs                     \
          --specs=nosys.specs
@@ -156,7 +168,7 @@ else
          -ffast-math                            \
          -Wl,--print-memory-usage               \
          -Wl,--print-map                        \
-         -Wl,-dT $(SRC_DIR)/Memory_Map.ld       \
+         -Wl,-dT $(LD_SCRIPT)                   \
          -Wl,-Map=$(OUTPUT_DIR)/$(PRJ_NAME).map \
          --specs=nano.specs                     \
          --specs=nosys.specs
@@ -224,9 +236,11 @@ $(OBJ_DIR)/%.o : %.cpp
 	@$(CC) $(CPPOPS) -I$(INC_FILES) $< -o $(OBJ_DIR)/$(basename $(@F)).o 2> $(OBJ_DIR)/$(basename $(@F)).err
 	@-$(PYTHON) CompilerErrorFormater.py $(OBJ_DIR)/$(basename $(@F)).err -COLOR
 
-$(OUTPUT_DIR)/$(PRJ_NAME).elf : $(FILES_O)
+$(OUTPUT_DIR)/$(PRJ_NAME).elf : $(FILES_O) $(LD_SCRIPT)
 	@$(LD) $(LOPS) $(FILES_O) -o $(OUTPUT_DIR)/$(PRJ_NAME).elf
 	@$(OBJDUMP) -D $(OUTPUT_DIR)/$(PRJ_NAME).elf > $(OUTPUT_DIR)/$(PRJ_NAME).list
 	@$(OBJCOPY) $(OUTPUT_DIR)/$(PRJ_NAME).elf -O ihex $(OUTPUT_DIR)/$(PRJ_NAME).hex
 	@$(READELF) -S -s $(OUTPUT_DIR)/$(PRJ_NAME).elf > $(OUTPUT_DIR)/$(PRJ_NAME).readelf
 
+$(LD_SCRIPT) : $(SRC_DIR)/Memory_Map.ld
+	@$(CC) -E -P -C -x c $(VARIANT) $(SRC_DIR)/Memory_Map.ld > $(LD_SCRIPT)

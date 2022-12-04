@@ -355,6 +355,7 @@ const InterruptHandler __attribute__((section (".intvect"), aligned(512))) Inter
     (InterruptHandler)&Isr_WKUP_IRQn                   /* WKUP1 to WKUP6 pins                                                             */
 };
 
+#ifdef VARIANT_EXECUTE_CODE_FROM_ITCM
 //=============================================================================
 // Exception vector table
 //=============================================================================
@@ -377,3 +378,4 @@ const InterruptHandler __attribute__((section (".ExceptionTable"), aligned(512))
     (InterruptHandler)&Isr_PendSV_IRQn,                /* Pendable request for system service                                             */
     (InterruptHandler)&Isr_SysTick_IRQn                /* System Tick Timer                                                               */
 };
+#endif
