@@ -38,48 +38,19 @@ PYTHON = python
 # Optimization Compiler flags
 ############################################################################################
 
-OPT_MODIFIED_O2 = -O1                                          \
-                  -falign-functions  -falign-jumps             \
-                  -falign-labels  -falign-loops                \
-                  -fcaller-saves                               \
-                  -fcode-hoisting                              \
-                  -fcrossjumping                               \
-                  -fcse-follow-jumps  -fcse-skip-blocks        \
-                  -fdelete-null-pointer-checks                 \
-                  -fdevirtualize  -fdevirtualize-speculatively \
-                  -fexpensive-optimizations                    \
-                  -ffinite-loops                               \
-                  -fgcse  -fgcse-lm                            \
-                  -fhoist-adjacent-loads                       \
-                  -finline-functions                           \
-                  -finline-small-functions                     \
-                  -findirect-inlining                          \
-                  -fipa-bit-cp  -fipa-cp  -fipa-icf            \
-                  -fipa-ra  -fipa-sra  -fipa-vrp               \
-                  -fisolate-erroneous-paths-dereference        \
-                  -flra-remat                                  \
-                  -foptimize-sibling-calls                     \
-                  -foptimize-strlen                            \
-                  -fpartial-inlining                           \
-                  -fpeephole2                                  \
-                  -freorder-blocks-algorithm=stc               \
-                  -frerun-cse-after-loop                       \
-                  -fschedule-insns  -fschedule-insns2          \
-                  -fsched-interblock  -fsched-spec             \
-                  -fstore-merging                              \
-                  -fstrict-aliasing                            \
-                  -fthread-jumps                               \
-                  -ftree-builtin-call-dce                      \
-                  -ftree-loop-vectorize                        \
-                  -ftree-pre                                   \
-                  -ftree-slp-vectorize                         \
-                  -ftree-switch-conversion  -ftree-tail-merge  \
-                  -ftree-vrp                                   \
-                  -fvect-cost-model=cheap
+OPT_MODIFIED_O2 = -O2                               \
+                  -fno-reorder-blocks-and-partition \
+                  -fno-reorder-functions
 
 NO_OPT = -O0
 
 OPT = $(OPT_MODIFIED_O2)
+
+############################################################################################
+# GCC Compiler verbose flags
+############################################################################################
+
+VERBOSE_GCC = -frecord-gcc-switches -fverbose-asm
 
 ############################################################################################
 # C Compiler flags
