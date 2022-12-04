@@ -1,0 +1,13 @@
+;Add some extra buttons to the toolbar
+
+
+system.cpu STM32H7A3ZI
+system.up
+
+Data.LOAD.ELF ..\Output\Blinky_Nucleo_H7A3.elf
+
+Register.Set MSP __SYS_STACK_TOP
+
+list r(r15) /Track
+
+Register

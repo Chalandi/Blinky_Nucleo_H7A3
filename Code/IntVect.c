@@ -354,3 +354,28 @@ const InterruptHandler __attribute__((section (".intvect"), aligned(512))) Inter
     (InterruptHandler)&Isr_SAI4_IRQn,                  /* SAI4 global interrupt                                                           */
     (InterruptHandler)&Isr_WKUP_IRQn                   /* WKUP1 to WKUP6 pins                                                             */
 };
+
+#ifdef VARIANT_EXECUTE_CODE_FROM_ITCM
+//=============================================================================
+// Exception vector table
+//=============================================================================
+const InterruptHandler __attribute__((section (".ExceptionTable"), aligned(512))) ExceptionVectorTable[] =
+{
+    (InterruptHandler)__SYS_STACK_TOP,                 /* Stack pointer                                                                   */
+    (InterruptHandler)&Startup_Init,                   /* Reset Vector, invoked on Power up and warm reset                                */
+    (InterruptHandler)&Isr_NonMaskableInt_IRQn,        /* Non maskable Interrupt, cannot be stopped or preempted                          */
+    (InterruptHandler)&Isr_HardFault_IRQn,             /* Hard Fault, all classes of Fault                                                */
+    (InterruptHandler)&Isr_MemoryManagement_IRQn,      /* Memory Management, MPU mismatch, including Access Violation and No Match        */
+    (InterruptHandler)&Isr_BusFault_IRQn,              /* Bus Fault, Pre-Fetch-, Memory Access Fault, other address/memory related Fault  */
+    (InterruptHandler)&Isr_UsageFault_IRQn,            /* Usage Fault, i.e. Undef Instruction, Illegal State Transition                   */
+    (InterruptHandler)&UndefinedHandler,               /* Reserved                                                                        */
+    (InterruptHandler)&UndefinedHandler,               /* Reserved                                                                        */
+    (InterruptHandler)&UndefinedHandler,               /* Reserved                                                                        */
+    (InterruptHandler)&UndefinedHandler,               /* Reserved                                                                        */
+    (InterruptHandler)&Isr_SVCall_IRQn,                /* System Service Call via SVC instruction                                         */
+    (InterruptHandler)&UndefinedHandler,               /* Reserved                                                                        */
+    (InterruptHandler)&UndefinedHandler,               /* Reserved                                                                        */
+    (InterruptHandler)&Isr_PendSV_IRQn,                /* Pendable request for system service                                             */
+    (InterruptHandler)&Isr_SysTick_IRQn                /* System Tick Timer                                                               */
+};
+#endif

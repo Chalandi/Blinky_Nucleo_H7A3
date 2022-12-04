@@ -10,7 +10,7 @@
 // Globals
 //=========================================================================================
 volatile LedTreeBitCounter xLedCounter = {.reg = 0};
-
+volatile unsigned int cpt = 0;
 //=========================================================================================
 // Externs
 //=========================================================================================
@@ -57,10 +57,12 @@ int main(void)
 //-----------------------------------------------------------------------------
 void Isr_SysTick_IRQn(void)
 {
-  xLedCounter.reg++;
-
-  LED_G_SET(xLedCounter.bits.bit0);
-  LED_Y_SET(xLedCounter.bits.bit1);
-  LED_R_SET(xLedCounter.bits.bit2);
-
+  if(++cpt == 4)
+  {
+   xLedCounter.reg++;
+   LED_G_SET(xLedCounter.bits.bit0);
+   LED_Y_SET(xLedCounter.bits.bit1);
+   LED_R_SET(xLedCounter.bits.bit2);
+   cpt = 0;
+  }
 }

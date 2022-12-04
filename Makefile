@@ -11,24 +11,65 @@
 #
 # ******************************************************************************************
 
-HW_TARGET = H7A3
+############################################################################################
+# Defines
+############################################################################################
 
-PRJ_NAME = Blinky_Nucleo_$(HW_TARGET)
-
+HW_TARGET  = H7A3
+PRJ_NAME   = Blinky_Nucleo_$(HW_TARGET)
 OUTPUT_DIR = Output
-
 OBJ_DIR    = $(OUTPUT_DIR)/Obj
+LD_SCRIPT  = $(OUTPUT_DIR)/$(PRJ_NAME).ld
+SRC_DIR    = Code
 
-SRC_DIR = Code
+############################################################################################
+# Variant
+############################################################################################
+EXECUTE_CODE_FROM_ITCM  = -DVARIANT_EXECUTE_CODE_FROM_ITCM
+EXECUTE_CODE_FROM_FLASH = -DVARIANT_EXECUTE_CODE_FROM_FLASH
 
-AS = arm-none-eabi-as
-CC = arm-none-eabi-gcc
-LD = arm-none-eabi-gcc
+# Select which variant you want to use
+VARIANT = $(EXECUTE_CODE_FROM_FLASH)
 
-ARMGNU = arm-none-eabi
+############################################################################################
+# Toolchain
+############################################################################################
+
+AS      = arm-none-eabi-as
+CC      = arm-none-eabi-gcc
+LD      = arm-none-eabi-gcc
+OBJDUMP = arm-none-eabi-objdump
+OBJCOPY = arm-none-eabi-objcopy
+READELF = arm-none-eabi-readelf
+
+PYTHON = python
+
+############################################################################################
+# Optimization Compiler flags
+############################################################################################
+
+OPT_MODIFIED_O2 = -O2                               \
+                  -fno-reorder-blocks-and-partition \
+                  -fno-reorder-functions
+
+NO_OPT = -O0
+
+OPT = $(OPT_MODIFIED_O2)
+
+############################################################################################
+# GCC Compiler verbose flags
+############################################################################################
+
+VERBOSE_GCC = -frecord-gcc-switches -fverbose-asm
+
+############################################################################################
+# C Compiler flags
+############################################################################################
 
 COPS  = -mlittle-endian                               \
-        -O2                                           \
+        -mlong-calls                                  \
+        $(OPT)                                        \
+        $(VARIANT)                                    \
         -march=armv7e-m+fpv5-d16                      \
         -mtune=cortex-m7                              \
         -mthumb                                       \
@@ -52,6 +93,56 @@ COPS  = -mlittle-endian                               \
         -gdwarf-2                                     \
         -fno-exceptions
 
+############################################################################################
+# C++ Compiler flags
+############################################################################################
+
+CPPOPS  = -mlittle-endian                               \
+          -mlong-calls                                  \
+          $(OPT)                                        \
+          $(VARIANT)                                    \
+          -march=armv7e-m+fpv5-d16                      \
+          -mtune=cortex-m7                              \
+          -mthumb                                       \
+          -mfloat-abi=hard                              \
+          -ffast-math                                   \
+          -Wa,-adhln=$(OBJ_DIR)/$(basename $(@F)).lst   \
+          -g3                                           \
+          -Wconversion                                  \
+          -Wsign-conversion                             \
+          -Wunused-parameter                            \
+          -Wuninitialized                               \
+          -Wmissing-declarations                        \
+          -Wshadow                                      \
+          -Wunreachable-code                            \
+          -Wmissing-include-dirs                        \
+          -Wall                                         \
+          -Wextra                                       \
+          -fomit-frame-pointer                          \
+          -gdwarf-2                                     \
+          -fno-exceptions                               \
+          -x c++                                        \
+          -fno-rtti                                     \
+          -fno-use-cxa-atexit                           \
+          -fno-nonansi-builtins                         \
+          -fno-threadsafe-statics                       \
+          -fno-enforce-eh-specs                         \
+          -ftemplate-depth=128                          \
+          -Wzero-as-null-pointer-constant
+
+############################################################################################
+# Assembler flags
+############################################################################################
+
+ASOPS =  -march=armv7e-m+fpv5-d16 \
+         -mlittle-endian          \
+         -mthumb                  \
+         -alh 
+
+############################################################################################
+# Linker flags
+############################################################################################
+
 ifeq ($(LD), arm-none-eabi-ld)
   LOPS = -nostartfiles                          \
          -nostdlib                              \
@@ -63,7 +154,7 @@ ifeq ($(LD), arm-none-eabi-ld)
          -e Startup_Init                        \
          --print-memory-usage                   \
          --print-map                            \
-         -dT $(SRC_DIR)/Memory_Map.ld           \
+         -dT $(LD_SCRIPT)                       \
          -Map=$(OUTPUT_DIR)/$(PRJ_NAME).map     \
          --specs=nano.specs                     \
          --specs=nosys.specs
@@ -77,12 +168,15 @@ else
          -ffast-math                            \
          -Wl,--print-memory-usage               \
          -Wl,--print-map                        \
-         -Wl,-dT $(SRC_DIR)/Memory_Map.ld       \
+         -Wl,-dT $(LD_SCRIPT)                   \
          -Wl,-Map=$(OUTPUT_DIR)/$(PRJ_NAME).map \
          --specs=nano.specs                     \
          --specs=nosys.specs
 endif
 
+############################################################################################
+# Source Files
+############################################################################################
 
 SRC_FILES :=  $(SRC_DIR)/mcal/Cache          \
               $(SRC_DIR)/mcal/Clock          \
@@ -90,11 +184,18 @@ SRC_FILES :=  $(SRC_DIR)/mcal/Cache          \
               $(SRC_DIR)/mcal/SysTick        \
               $(SRC_DIR)/IntVect             \
               $(SRC_DIR)/main                \
+              $(SRC_DIR)/memlib              \
               $(SRC_DIR)/Startup
 
-
+############################################################################################
+# Include Paths
+############################################################################################
 INC_FILES :=  $(SRC_DIR)/mcal                \
               $(SRC_DIR)
+
+############################################################################################
+# Rules
+############################################################################################
 
 VPATH := $(subst \,/,$(sort $(dir $(SRC_FILES)) $(OBJ_DIR)))
 
@@ -123,17 +224,23 @@ clean :
 $(OBJ_DIR)/%.o : %.c
 	@-echo +++ compile: $(subst \,/,$<) to $(subst \,/,$@)
 	@-$(CC) $(COPS) $(addprefix -I, $(INC_FILES)) -c $< -o $(OBJ_DIR)/$(basename $(@F)).o 2> $(OBJ_DIR)/$(basename $(@F)).err
+	@-$(PYTHON) CompilerErrorFormater.py $(OBJ_DIR)/$(basename $(@F)).err -COLOR
 
 $(OBJ_DIR)/%.o : %.s
 	@-echo +++ compile: $(subst \,/,$<) to $(subst \,/,$@)
-	@$(AS) $< -o $(OBJ_DIR)/$(basename $(@F)).o
-
+	@$(AS) $(ASOPS) $< -o $(OBJ_DIR)/$(basename $(@F)).o 2> $(OBJ_DIR)/$(basename $(@F)).err >$(OBJ_DIR)/$(basename $(@F)).lst
+	@-$(PYTHON) CompilerErrorFormater.py $(OBJ_DIR)/$(basename $(@F)).err -COLOR
 
 $(OBJ_DIR)/%.o : %.cpp
 	@-echo +++ compile: $(subst \,/,$<) to $(subst \,/,$@)
-	@$(CC) $(COPS) -I$(INC_FILES) $< -o $(OBJ_DIR)/$(basename $(@F)).o
+	@$(CC) $(CPPOPS) -I$(INC_FILES) $< -o $(OBJ_DIR)/$(basename $(@F)).o 2> $(OBJ_DIR)/$(basename $(@F)).err
+	@-$(PYTHON) CompilerErrorFormater.py $(OBJ_DIR)/$(basename $(@F)).err -COLOR
 
-$(OUTPUT_DIR)/$(PRJ_NAME).elf : $(FILES_O)
+$(OUTPUT_DIR)/$(PRJ_NAME).elf : $(FILES_O) $(LD_SCRIPT)
 	@$(LD) $(LOPS) $(FILES_O) -o $(OUTPUT_DIR)/$(PRJ_NAME).elf
-	@$(ARMGNU)-objdump -D $(OUTPUT_DIR)/$(PRJ_NAME).elf > $(OUTPUT_DIR)/$(PRJ_NAME).list
-	@$(ARMGNU)-objcopy $(OUTPUT_DIR)/$(PRJ_NAME).elf -O ihex $(OUTPUT_DIR)/$(PRJ_NAME).hex
+	@$(OBJDUMP) -D $(OUTPUT_DIR)/$(PRJ_NAME).elf > $(OUTPUT_DIR)/$(PRJ_NAME).list
+	@$(OBJCOPY) $(OUTPUT_DIR)/$(PRJ_NAME).elf -O ihex $(OUTPUT_DIR)/$(PRJ_NAME).hex
+	@$(READELF) -S -s $(OUTPUT_DIR)/$(PRJ_NAME).elf > $(OUTPUT_DIR)/$(PRJ_NAME).readelf
+
+$(LD_SCRIPT) : $(SRC_DIR)/Memory_Map.ld
+	@$(CC) -E -P -C -x c $(VARIANT) $(SRC_DIR)/Memory_Map.ld > $(LD_SCRIPT)
