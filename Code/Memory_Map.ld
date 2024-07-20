@@ -124,8 +124,6 @@ SECTIONS
   .ctors : ALIGN(4)
   {
     __CTOR_LIST__ = . ;
-    KEEP (*(SORT(.ctors.*)))
-    KEEP (*(.ctors))
     KEEP (*(SORT(.init_array.*)))
     KEEP (*(.init_array))
     LONG(-1) ;
@@ -181,6 +179,8 @@ SECTIONS
     *(.bss)
     . = ALIGN(32);
   } > RAM
+
+  PROVIDE(end = .);
 
   /* user-system mode stack definition */
   .stack :

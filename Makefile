@@ -43,7 +43,7 @@ OBJDUMP = arm-none-eabi-objdump
 OBJCOPY = arm-none-eabi-objcopy
 READELF = arm-none-eabi-readelf
 
-PYTHON = python
+PYTHON = python3
 
 ############################################################################################
 # Optimization Compiler flags
@@ -119,10 +119,12 @@ CPPOPS  = -mlittle-endian                               \
           -Wmissing-include-dirs                        \
           -Wall                                         \
           -Wextra                                       \
+          -Wpedantic                                    \
           -fomit-frame-pointer                          \
           -gdwarf-2                                     \
           -fno-exceptions                               \
           -x c++                                        \
+          -std=c++20                                    \
           -fno-rtti                                     \
           -fno-use-cxa-atexit                           \
           -fno-nonansi-builtins                         \
@@ -161,6 +163,7 @@ ifeq ($(LD), arm-none-eabi-ld)
          --specs=nosys.specs
 else
   LOPS = -nostartfiles                          \
+         -nostdlib                              \
          -e Startup_Init                        \
          -march=armv7e-m+fpv5-d16               \
          -mtune=cortex-m7                       \
@@ -183,9 +186,11 @@ SRC_FILES :=  $(SRC_DIR)/mcal/Cache          \
               $(SRC_DIR)/mcal/Clock          \
               $(SRC_DIR)/mcal/Mcu            \
               $(SRC_DIR)/mcal/SysTick        \
+              $(SRC_DIR)/delete              \
               $(SRC_DIR)/IntVect             \
               $(SRC_DIR)/main                \
               $(SRC_DIR)/memlib              \
+              $(SRC_DIR)/shapes              \
               $(SRC_DIR)/Startup
 
 ############################################################################################

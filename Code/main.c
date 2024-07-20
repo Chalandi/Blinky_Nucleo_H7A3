@@ -16,6 +16,8 @@ volatile unsigned int cpt = 0;
 //=========================================================================================
 void Isr_SysTick_IRQn(void);
 
+extern void shapes_draw_circle(void);
+
 //-----------------------------------------------------------------------------
 /// \brief
 ///
@@ -39,6 +41,9 @@ int main(void)
   /* Configure and start the systick timer */
   SysTick_Init();
   SysTick_Start();
+
+  /* Test the non-trivlal use of the C++ language in the project. */
+  shapes_draw_circle();
 
   /* Endless loop */
   for(;;);
