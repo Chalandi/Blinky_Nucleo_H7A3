@@ -15,6 +15,11 @@
 
 ******************************************************************************************/
 
+INPUT(libc.a)
+
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+OUTPUT_ARCH(arm)
+
 /******************************************************************************************
  Globals
 ******************************************************************************************/
@@ -88,12 +93,22 @@ SECTIONS
   {
     *(.text)
     . = ALIGN(32);
+    *(.text*)
+    . = ALIGN(32);
+    *(.progmem*)
+    . = ALIGN(32);
+    *(.glue_7)
+    . = ALIGN(32);
+    *(.glue_7t)
+    . = ALIGN(32);
   } > ITCM  AT>ROM
 
   /* Read-only data (.rodata) */
   .rodata : ALIGN(4)
   {
     *(.rodata)
+    . = ALIGN(32);
+    *(.rodata*)
     . = ALIGN(32);
   } > ITCM  AT>ROM
 #else
@@ -111,12 +126,22 @@ SECTIONS
   {
     *(.text)
     . = ALIGN(32);
+    *(.text*)
+    . = ALIGN(32);
+    *(.progmem*)
+    . = ALIGN(32);
+    *(.glue_7)
+    . = ALIGN(32);
+    *(.glue_7t)
+    . = ALIGN(32);
   } > ROM
 
   /* Read-only data (.rodata) */
   .rodata : ALIGN(4)
   {
     *(.rodata)
+    . = ALIGN(32);
+    *(.rodata*)
     . = ALIGN(32);
   } > ROM
 #endif
@@ -164,10 +189,35 @@ SECTIONS
     /* RAM DATA */
     LONG(LOADADDR(.data));  LONG(0 + ADDR(.data));  LONG(SIZEOF(.data));
     LONG(-1);                 LONG(-1);                  LONG(-1);
-  } > ROM 
+  } > ROM
+
+  .ARM.extab : ALIGN(4)
+  {
+    *(.ARM.extab)
+    . = ALIGN(32);
+    *(.ARM.extab*)
+    . = ALIGN(32);
+    *(.gnu.linkonce.armextab.*)
+    . = ALIGN(32);
+  } > ROM
+
+  .exidx : ALIGN(4)
+  {
+    PROVIDE(__exidx_start = .);
+    *(.ARM.exidx*)
+    . = ALIGN(32);
+    PROVIDE(__exidx_end = .);
+    . = ALIGN(32);
+  } > ROM
+
+  .ARM.attributes : ALIGN(4)
+  {
+    *(.ARM.attributes)
+    . = ALIGN(32);
+  } > ROM
 
   /* The ROM-to-RAM initialized data section */
-  .data : ALIGN(4) 
+  .data : ALIGN(4)
   {
     *(.data)
     . = ALIGN(32);
@@ -181,6 +231,7 @@ SECTIONS
   } > RAM
 
   PROVIDE(end = .);
+  PROVIDE(_fini = .);
 
   /* user-system mode stack definition */
   .stack :

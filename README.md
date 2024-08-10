@@ -11,7 +11,12 @@ Features include:
   - D/I cache and FPU initialization,
   - timebase derived from SysTick,
   - blinky LED show on three bits,
-  - implementation in C99 with absolute minimal use of assembly.
+  - implementation in C11/C++20 with absolute minimal use of assembly.
+
+
+This project also includes a straightforward sample C++ class
+implementation and instantiation. This is used to exhibit a mixed-language
+C/C++ application.
 
 A clear and easy-to-understand build system based on GNUmake
 completes this fun and educational project.
